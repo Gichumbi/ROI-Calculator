@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Return on Investment (ROI) Calculator</title>
+  <style>
+    :root {
+      --title: #163a75;
+      --header: #2f6eaf;
+      --result: #4a8f3c;
+      --result-dark: #3e7c33;
+      --calc: #3d9a3a;
+      --calc-hover: #348432;
+      --clear: #8a8a8a;
+      --clear-hover: #767676;
+      --panel: #e6e6e6;
+      --border: #cfcfcf;
+      --text: #333333;
+      --label: #2b2b2b;
+      --blue: #2d7dd2;
+      --green: #6cb33f;
+      --gain: #2e9a2a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px 18px 40px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .page {
+      max-width: 880px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--title);
+      letter-spacing: -0.2px;
+    }
+
+    .banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--header);
+      color: #fff;
+      padding: 11px 18px;
+      font-size: 16px;
+      font-style: italic;
+    }
+
+    .chevron {
+      width: 26px;
+      height: 26px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .chevron::after {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid #fff;
+      margin-top: 3px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 0.95fr 1.15fr;
+      gap: 14px;
+      margin-top: 8px;
+      align-items: stretch;
+    }
+
+    .inputs {
+      background: var(--panel);
+      border: 1px solid #d4d4d4;
+      padding: 20px 16px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 148px 1fr;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .row label {
+      text-align: right;
+      font-size: 14px;
+      color: var(--label);
+    }
+
+    .money {
+      display: flex;
+      align-items: stretch;
+      max-width: 168px;
+      background: #fff;
+      border: 1px solid #9aa0a6;
+      height: 30px;
+    }
+
+    .money span {
+      display: flex;
+      align-items: center;
+      padding: 0 1px 0 7px;
+      color: #222;
+      font-size: 14px;
+    }
+
+    .money input {
+      border: 0;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
+      padding: 0 8px 0 0;
+      color: #222;
+    }
+
+    .section-label {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 6px 0 8px;
+      padding-left: 28px;
+      color: var(--label);
+    }
+
+    .radios {
+      display: flex;
+      gap: 26px;
+      margin: 0 0 14px 48px;
+      font-size: 14px;
+    }
+
+    .radios label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    input[type="radio"] {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #3a7ec4;
+      border-radius: 50%;
+      margin: 0;
+      display: inline-grid;
+      place-content: center;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    input[type="radio"]::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2f6eaf;
+      transform: scale(0);
+    }
+
+    input[type="radio"]:checked::before {
+      transform: scale(1);
+    }
+
+    .date-row {
+      display: grid;
+      grid-template-columns: 148px 1fr;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .date-row label {
+      text-align: right;
+      font-size: 14px;
+    }
+
+    .date-row input[type="date"],
+    .length-fields input[type="number"] {
+      height: 30px;
+      border: 1px solid #9aa0a6;
+      padding: 0 8px;
+      font-size: 14px;
+      max-width: 168px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .length-fields {
+      display: none;
+      margin: 4px 0 8px 52px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .length-fields.show {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .length-fields label {
+      font-size: 13px;
+      margin-right: 4px;
+    }
+
+    .length-fields input {
+      width: 72px;
+      max-width: 72px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin: auto 0 4px 48px;
+      padding-top: 18px;
+    }
+
+    button {
+      border: 0;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      height: 38px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-calc {
+      background: var(--calc);
+      min-width: 126px;
+    }
+
+    .btn-calc:hover {
+      background: var(--calc-hover);
+    }
+
+    .play {
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-left: 12px solid #fff;
+      display: inline-block;
+    }
+
+    .btn-clear {
+      background: var(--clear);
+      min-width: 72px;
+    }
+
+    .btn-clear:hover {
+      background: var(--clear-hover);
+    }
+
+    .results {
+      border: 1px solid #d5d5d5;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .result-head {
+      background: var(--result);
+      color: #fff;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .result-head h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .save {
+      background: transparent;
+      padding: 0;
+      height: auto;
+      flex-direction: column;
+      gap: 1px;
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.95;
+    }
+
+    .save svg {
+      width: 18px;
+      height: 18px;
+      fill: #fff;
+    }
+
+    .result-body {
+      padding: 18px 18px 16px;
+      flex: 1;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 0 auto 20px;
+      min-width: 270px;
+    }
+
+    td {
+      border: 1px solid #c8c8c8;
+      padding: 4px 12px;
+      font-size: 14px;
+    }
+
+    td:first-child {
+      color: #555;
+    }
+
+    td:last-child {
+      text-align: right;
+      min-width: 108px;
+      font-weight: 400;
+    }
+
+    .green {
+      color: var(--gain);
+      font-weight: 400;
+    }
+
+    .chart-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    canvas {
+      width: 148px;
+      height: 148px;
+    }
+
+    .legend {
+      font-size: 13px;
+      color: #355a8a;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .legend div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      display: inline-block;
+    }
+
+    .swatch.invested {
+      background: var(--blue);
+    }
+
+    .swatch.profit {
+      background: var(--green);
+    }
+
+    .error {
+      color: #b42318;
+      font-size: 13px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .error:empty {
+      display: none;
+    }
+
+    @media (max-width: 760px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>Return on Investment (ROI) Calculator</h1>
+    <div class="banner">
+      <span class="chevron" aria-hidden="true"></span>
+      <span>Modify the values and click the Calculate button to use</span>
+    </div>
+
+    <div class="layout">
+      <section class="inputs" aria-label="Calculator inputs">
+        <div class="row">
+          <label for="invested">Amount Invested</label>
+          <div class="money">
+            <span>$</span>
+            <input id="invested" type="text" inputmode="decimal" value="1,000" />
+          </div>
+        </div>
+        <div class="row">
+          <label for="returned">Amount Returned</label>
+          <div class="money">
+            <span>$</span>
+            <input id="returned" type="text" inputmode="decimal" value="2,000" />
+          </div>
+        </div>
+
+        <div class="section-label">Investment Time:</div>
+        <div class="radios">
+          <label>
+            <input type="radio" name="timeMode" value="dates" checked />
+            Use Dates
+          </label>
+          <label>
+            <input type="radio" name="timeMode" value="length" />
+            Use Length
+          </label>
+        </div>
+
+        <div id="dateFields">
+          <div class="date-row">
+            <label for="fromDate">From</label>
+            <input id="fromDate" type="date" value="2026-03-12" />
+          </div>
+          <div class="date-row">
+            <label for="toDate">To</label>
+            <input id="toDate" type="date" value="2030-12-31" />
+          </div>
+        </div>
+
+        <div id="lengthFields" class="length-fields">
+          <label for="years">Years</label>
+          <input id="years" type="number" min="0" step="1" value="4" />
+          <label for="months">Months</label>
+          <input id="months" type="number" min="0" max="11" step="1" value="10" />
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-calc" id="calculateBtn">
+            Calculate <span class="play" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="btn-clear" id="clearBtn">Clear</button>
+        </div>
+      </section>
+
+      <section class="results" aria-label="Calculator results">
+        <div class="result-head">
+          <h2>Result</h2>
+          <button type="button" class="save" id="saveBtn" title="Save results">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 3h12l4 4v14H4V3zm2 2v6h10V5H6zm0 8v8h12v-8H6zm2 2h8v2H8v-2z"/>
+            </svg>
+            Save
+          </button>
+        </div>
+        <div class="result-body">
+          <div class="error" id="error"></div>
+          <table>
+            <tr>
+              <td>Investment Gain</td>
+              <td class="green" id="gain">$1,000.00</td>
+            </tr>
+            <tr>
+              <td>ROI</td>
+              <td class="green" id="roi">100.00%</td>
+            </tr>
+            <tr>
+              <td>Annualized ROI</td>
+              <td class="green" id="annualized">15.52%</td>
+            </tr>
+            <tr>
+              <td>Investment Length</td>
+              <td id="length">4.805 years</td>
+            </tr>
+          </table>
+          <div class="chart-wrap">
+            <canvas id="pie" width="296" height="296"></canvas>
+            <div class="legend">
+              <div><span class="swatch invested"></span> Invested</div>
+              <div><span class="swatch profit"></span> Profit</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const investedEl = document.getElementById("invested");
+    const returnedEl = document.getElementById("returned");
+    const fromDateEl = document.getElementById("fromDate");
+    const toDateEl = document.getElementById("toDate");
+    const yearsEl = document.getElementById("years");
+    const monthsEl = document.getElementById("months");
+    const dateFields = document.getElementById("dateFields");
+    const lengthFields = document.getElementById("lengthFields");
+    const errorEl = document.getElementById("error");
+    const canvas = document.getElementById("pie");
+    const ctx = canvas.getContext("2d");
+
+    const defaults = {
+      invested: "1,000",
+      returned: "2,000",
+      from: "2026-03-12",
+      to: "2030-12-31",
+      years: "4",
+      months: "10",
+      mode: "dates"
+    };
+
+    function parseMoney(value) {
+      return Number(String(value).replace(/[^0-9.-]/g, ""));
+    }
+
+    function formatMoney(value) {
+      const abs = Math.abs(value);
+      const formatted = abs.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      return (value < 0 ? "-$" : "$") + formatted;
+    }
+
+    function formatInputMoney(el) {
+      const n = parseMoney(el.value);
+      if (!Number.isFinite(n)) return;
+      el.value = n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    }
+
+    function yearsBetween(from, to) {
+      const start = new Date(from + "T00:00:00");
+      const end = new Date(to + "T00:00:00");
+      const ms = end - start;
+      return ms / (1000 * 60 * 60 * 24 * 365.25);
+    }
+
+    function currentMode() {
+      return document.querySelector('input[name="timeMode"]:checked').value;
+    }
+
+    function getYears() {
+      if (currentMode() === "length") {
+        const years = Number(yearsEl.value) || 0;
+        const months = Number(monthsEl.value) || 0;
+        return years + months / 12;
+      }
+      return yearsBetween(fromDateEl.value, toDateEl.value);
+    }
+
+    function drawPie(invested, profit) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = 128;
+      const inner = 58;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const investedAbs = Math.max(invested, 0);
+      const profitAbs = Math.max(profit, 0);
+      const total = investedAbs + profitAbs;
+
+      const slices = [];
+      if (total <= 0) {
+        slices.push({ value: 1, color: "#2d7dd2", label: "0%" });
+      } else {
+        const investedPct = Math.round((investedAbs / total) * 100);
+        slices.push({
+          value: investedAbs,
+          color: "#2d7dd2",
+          label: investedPct + "%"
+        });
+        if (profitAbs > 0) {
+          slices.push({
+            value: profitAbs,
+            color: "#6cb33f",
+            label: (100 - investedPct) + "%"
+          });
+        }
+      }
+
+      let angle = -Math.PI / 2;
+      slices.forEach((slice) => {
+        const sliceAngle = (slice.value / (total || 1)) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, angle, angle + sliceAngle);
+        ctx.closePath();
+        ctx.fillStyle = slice.color;
+        ctx.fill();
+
+        if (sliceAngle > 0.25) {
+          const mid = angle + sliceAngle / 2;
+          const lr = (radius + inner) / 2;
+          ctx.fillStyle = "#fff";
+          ctx.font = "bold 28px Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(slice.label, cx + Math.cos(mid) * lr, cy + Math.sin(mid) * lr);
+        }
+
+        angle += sliceAngle;
+      });
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, inner, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+    }
+
+    function calculate() {
+      errorEl.textContent = "";
+      const invested = parseMoney(investedEl.value);
+      const returned = parseMoney(returnedEl.value);
+
+      if (!Number.isFinite(invested) || invested <= 0) {
+        errorEl.textContent = "Amount Invested must be greater than 0.";
+        return;
+      }
+      if (!Number.isFinite(returned)) {
+        errorEl.textContent = "Enter a valid Amount Returned.";
+        return;
+      }
+
+      const years = getYears();
+      if (!Number.isFinite(years) || years <= 0) {
+        errorEl.textContent = "Investment length must be greater than 0.";
+        return;
+      }
+
+      const gain = returned - invested;
+      const roi = gain / invested;
+      const annualized = Math.pow(1 + roi, 1 / years) - 1;
+
+      document.getElementById("gain").textContent = formatMoney(gain);
+      document.getElementById("roi").textContent = (roi * 100).toFixed(2) + "%";
+      document.getElementById("annualized").textContent =
+        Number.isFinite(annualized) ? (annualized * 100).toFixed(2) + "%" : "N/A";
+      document.getElementById("length").textContent = years.toFixed(3) + " years";
+
+      const gainCell = document.getElementById("gain");
+      const roiCell = document.getElementById("roi");
+      const annCell = document.getElementById("annualized");
+      [gainCell, roiCell, annCell].forEach((el) => {
+        el.className = gain >= 0 ? "green" : "";
+        el.style.color = gain >= 0 ? "" : "#b42318";
+      });
+
+      drawPie(invested, gain);
+    }
+
+    function toggleMode() {
+      const useDates = currentMode() === "dates";
+      dateFields.style.display = useDates ? "block" : "none";
+      lengthFields.classList.toggle("show", !useDates);
+    }
+
+    function clearAll() {
+      investedEl.value = defaults.invested;
+      returnedEl.value = defaults.returned;
+      fromDateEl.value = defaults.from;
+      toDateEl.value = defaults.to;
+      yearsEl.value = defaults.years;
+      monthsEl.value = defaults.months;
+      document.querySelector('input[name="timeMode"][value="dates"]').checked = true;
+      toggleMode();
+      errorEl.textContent = "";
+      calculate();
+    }
+
+    function saveResults() {
+      const text = [
+        "Return on Investment (ROI) Calculator",
+        "Investment Gain: " + document.getElementById("gain").textContent,
+        "ROI: " + document.getElementById("roi").textContent,
+        "Annualized ROI: " + document.getElementById("annualized").textContent,
+        "Investment Length: " + document.getElementById("length").textContent
+      ].join("\n");
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "roi-results.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.querySelectorAll('input[name="timeMode"]').forEach((radio) => {
+      radio.addEventListener("change", toggleMode);
+    });
+    document.getElementById("calculateBtn").addEventListener("click", calculate);
+    document.getElementById("clearBtn").addEventListener("click", clearAll);
+    document.getElementById("saveBtn").addEventListener("click", saveResults);
+    [investedEl, returnedEl].forEach((el) => {
+      el.addEventListener("blur", () => formatInputMoney(el));
+    });
+
+    calculate();
+  </script>
+</body>
+</html>
